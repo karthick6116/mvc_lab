@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Grade Review</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="layout">
+    <nav class="sidebar">
+        <div class="sidebar-brand"><h2>🏛️ Department Head</h2><p th:text="${depthead.name}"></p></div>
+        <a th:href="@{/depthead/dashboard}">📊 Dashboard</a>
+        <a th:href="@{/depthead/enrollments}">📝 Enrollment Approvals</a>
+        <a th:href="@{/depthead/grades}" class="active">🎯 Grade Reviews</a>
+        <a th:href="@{/depthead/report}">📄 Download Report</a>
+        <div class="sidebar-logout"><a th:href="@{/logout}" class="btn btn-danger btn-full btn-sm">Logout</a></div>
+    </nav>
+    <div class="main-content">
+        <div class="topbar"><h1>Grade Review & Approval</h1></div>
+        <div class="page">
+            <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+            <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+            <div class="card">
+                <form method="get" th:action="@{/depthead/grades}" class="inline-form">
+                    <select name="courseId">
+                        <option value="">Select course</option>
+                        <option th:each="c : ${courses}" th:value="${c.courseId}" th:text="${c.courseCode + ' - ' + c.courseName}" th:selected="${course != null and course.courseId == c.courseId}"></option>
+                    </select>
+                    <button type="submit" class="btn btn-primary">Load Grades</button>
+                </form>
+            </div>
+
+            <div class="card" th:if="${course != null}">
+                <div class="card-title" th:text="${'Grade review for ' + course.courseCode + ' - ' + course.courseName}"></div>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Student</th><th>Marks</th><th>Letter</th><th>Status</th><th>Comments</th><th>Actions</th></tr></thead>
+                        <tbody>
+                        <tr th:each="grade : ${grades}">
+                            <td th:text="${grade.enrollment.student.name + ' (' + grade.enrollment.student.studentId + ')'}"></td>
+                            <td th:text="${grade.marks + '/' + grade.totalMarks + ' · ' + grade.examType}"></td>
+                            <td th:text="${grade.grade}"></td>
+                            <td><span th:classappend="${grade.approved ? 'approved' : 'pending'}" class="badge badge-plain" th:text="${grade.approved ? 'APPROVED' : 'PENDING REVIEW'}"></span></td>
+                            <td th:text="${grade.comments}"></td>
+                            <td>
+                                <div class="action-stack horizontal" th:if="${!grade.approved and grade.reviewedBy == null}">
+                                    <form method="post" th:action="@{/depthead/grades/approve}" class="inline-form compact-form">
+                                        <input type="hidden" name="gradeId" th:value="${grade.gradeId}">
+                                        <input type="text" name="comments" placeholder="Approval note">
+                                        <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                                    </form>
+                                    <form method="post" th:action="@{/depthead/grades/reject}" class="inline-form compact-form">
+                                        <input type="hidden" name="gradeId" th:value="${grade.gradeId}">
+                                        <input type="text" name="comments" placeholder="Correction required">
+                                        <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(grades)}"><td colspan="6" class="empty">No grades submitted for this course yet.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

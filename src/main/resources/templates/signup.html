@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign Up - SCM System</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #333;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .form-group input.error, .form-group select.error {
+            border-color: #dc3545;
+            background-color: #fff5f5;
+        }
+        .field-hint {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+            padding: 4px 8px;
+            background-color: #f8f9fa;
+            border-left: 3px solid #007bff;
+            border-radius: 2px;
+        }
+        .field-error {
+            font-size: 12px;
+            color: #dc3545;
+            margin-top: 4px;
+            padding: 4px 8px;
+            background-color: #fff5f5;
+            border-left: 3px solid #dc3545;
+            border-radius: 2px;
+            display: none;
+        }
+        .field-error.show {
+            display: block;
+        }
+        .alert {
+            padding: 12px 16px;
+            border-radius: 4px;
+            margin-bottom: 16px;
+        }
+        .alert-error {
+            background-color: #fff5f5;
+            border: 1px solid #dc3545;
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+<div class="auth-bg">
+<div style="width:100%;max-width:560px;margin:40px auto;padding:0 16px;">
+    <div class="auth-card">
+        <h1 style="text-align:center">Create Account</h1>
+        <p style="text-align:center">Fill in your details to register</p>
+
+        <div th:if="${error}" class="alert alert-error" th:text="${error}" id="generalError"></div>
+
+        <form method="post" th:action="@{/signup}" id="signupForm">
+            <div class="form-group">
+                <label>Register As</label>
+                <select name="role" id="roleSelect" onchange="toggleFields()">
+                    <option value="STUDENT">Student</option>
+                    <option value="FACULTY">Faculty</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Full Name <span style="color:red;">*</span></label>
+                <input type="text" name="name" required placeholder="Your full name" th:value="${name}">
+                <div class="field-hint">Required. Enter your complete full name</div>
+            </div>
+
+            <div class="form-group">
+                <label>Username <span style="color:red;">*</span></label>
+                <input type="text" name="username" required placeholder="Choose a username" th:value="${username}">
+                <div class="field-hint">3-20 characters. Alphanumeric and underscore only</div>
+            </div>
+
+            <div class="form-group">
+                <label>Email <span style="color:red;">*</span></label>
+                <input type="email" name="email" required placeholder="your@email.com" th:value="${email}">
+                <div class="field-hint">Valid email format: user@domain.com</div>
+            </div>
+
+            <div class="form-group">
+                <label>Phone Number</label>
+                <input type="text" name="phone" placeholder="XXX-XXX-XXXX" th:value="${phone}">
+                <div class="field-hint">Optional. Format: XXX-XXX-XXXX (10 digits with hyphens)</div>
+            </div>
+
+            <div class="form-group">
+                <label>Password <span style="color:red;">*</span></label>
+                <input type="password" name="password" required placeholder="Choose a password">
+                <div class="field-hint">Minimum 6 characters required</div>
+            </div>
+
+            <div class="form-group">
+                <label>Confirm Password <span style="color:red;">*</span></label>
+                <input type="password" name="confirmPassword" required placeholder="Confirm password">
+                <div class="field-hint">Must match the password above</div>
+            </div>
+
+            <!-- Student fields -->
+            <div id="studentFields" class="signup-role-fields active">
+                <div class="form-group">
+                    <label>Semester</label>
+                    <input type="number" name="semester" placeholder="e.g. 3" min="1" max="8" th:value="${semester}">
+                    <div class="field-hint">Number between 1-8</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Major</label>
+                    <input type="text" name="major" placeholder="e.g. Computer Science" th:value="${major}">
+                    <div class="field-hint">Your field of study</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Date of Birth</label>
+                    <input type="date" name="dob" th:value="${dob}">
+                    <div class="field-hint">Format: YYYY-MM-DD</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Address</label>
+                    <input type="text" name="address" placeholder="Your address" th:value="${address}">
+                    <div class="field-hint">Complete residential address</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Admission Year</label>
+                    <input type="number" name="admYear" placeholder="e.g. 2023" th:value="${admYear}">
+                    <div class="field-hint">Year of admission (YYYY)</div>
+                </div>
+            </div>
+
+            <!-- Faculty fields -->
+            <div id="facultyFields" class="signup-role-fields">
+                <div class="form-group">
+                    <label>Department</label>
+                    <input type="text" name="department" placeholder="e.g. Computer Science" th:value="${department}">
+                    <div class="field-hint">Your department name</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Designation</label>
+                    <input type="text" name="designation" placeholder="e.g. Assistant Professor" th:value="${designation}">
+                    <div class="field-hint">Your job title/position</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Qualification</label>
+                    <input type="text" name="qualification" placeholder="e.g. PhD in CS" th:value="${qualification}">
+                    <div class="field-hint">Highest degree/qualification</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Specialization</label>
+                    <input type="text" name="specialization" placeholder="e.g. AI & Machine Learning" th:value="${specialization}">
+                    <div class="field-hint">Your area of expertise</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Join Date</label>
+                    <input type="date" name="joinDate" th:value="${joinDate}">
+                    <div class="field-hint">Date you joined (YYYY-MM-DD)</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Office Room</label>
+                    <input type="text" name="officeRoom" placeholder="e.g. Room 301" th:value="${officeRoom}">
+                    <div class="field-hint">Office location/room number</div>
+                </div>
+            </div>
+
+            <div class="btn-row">
+                <button type="submit" class="btn btn-primary btn-full">Sign Up</button>
+                <a th:href="@{/login}" class="btn btn-gray btn-full">Back to Login</a>
+            </div>
+        </form>
+    </div>
+</div>
+</div>
+
+<script>
+function toggleFields() {
+    const role = document.getElementById('roleSelect').value;
+    document.getElementById('studentFields').className = 'signup-role-fields' + (role === 'STUDENT' ? ' active' : '');
+    document.getElementById('facultyFields').className = 'signup-role-fields' + (role === 'FACULTY' ? ' active' : '');
+}
+
+// Preserve form data on page load (if there was a validation error)
+document.addEventListener('DOMContentLoaded', function() {
+    const generalError = document.getElementById('generalError');
+    if (generalError && generalError.textContent.trim()) {
+        // Error message is shown, form data should be preserved via th:value
+        console.log('Form validation error detected - data preserved');
+    }
+});
+</script>
+</body>
+</html>

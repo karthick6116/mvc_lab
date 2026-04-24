@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Something went wrong</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="auth-bg">
+    <div class="auth-card">
+        <div style="font-size:54px;text-align:center;margin-bottom:12px;">⚠️</div>
+        <h1 style="text-align:center;">Something went wrong</h1>
+        <p style="text-align:center;">The page could not be processed. You can go back to login or retry from your dashboard.</p>
+        <div class="btn-row">
+            <a th:href="@{/login}" class="btn btn-primary btn-full">Go to Login</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

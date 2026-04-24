@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Browse Courses</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="layout">
+    <nav class="sidebar">
+        <div class="sidebar-brand">
+            <h2>🎓 Student Portal</h2>
+            <p th:text="${student.name}"></p>
+        </div>
+        <a th:href="@{/student/courses}" class="active">📚 Browse Courses</a>
+        <a th:href="@{/student/enrollments}">📝 My Enrollments</a>
+        <a th:href="@{/student/grades}">🎯 My Grades</a>
+        <a th:href="@{/student/schedule}">📅 My Schedule</a>
+        <a th:href="@{/student/attendance}">🕒 Attendance</a>
+        <a th:href="@{/student/materials}">📁 Materials</a>
+        <a th:href="@{/student/payments}">💳 Payments</a>
+        <div class="sidebar-logout">
+            <a th:href="@{/logout}" class="btn btn-danger btn-full btn-sm">Logout</a>
+        </div>
+    </nav>
+
+    <div class="main-content">
+        <div class="topbar">
+            <div>
+                <h1>Available Courses</h1>
+                <p class="muted">Search, inspect, and register for courses.</p>
+            </div>
+            <div class="topbar-user">
+                <span th:text="${student.name}"></span>
+                <span class="badge badge-neutral" th:text="'CGPA ' + ${cgpa}"></span>
+            </div>
+        </div>
+
+        <div class="page">
+            <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+            <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+            <div class="card">
+                <form method="get" th:action="@{/student/courses}" class="inline-form search-row">
+                    <input type="text" name="q" th:value="${search}" placeholder="Search by course code, name, or department">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                    <a th:href="@{/student/courses}" class="btn btn-gray">Reset</a>
+                    <span class="form-note" th:text="${courseCount + ' course(s) shown'}"></span>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Course</th>
+                            <th>Credits</th>
+                            <th>Department</th>
+                            <th>Seats</th>
+                            <th>Faculty</th>
+                            <th>Fee</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="course : ${courses}" th:with="current=${enrollmentMap[course.courseId]}">
+                            <td th:text="${course.courseCode}"></td>
+                            <td>
+                                <div class="strong" th:text="${course.courseName}"></div>
+                                <div class="muted small" th:text="${course.description}"></div>
+                            </td>
+                            <td th:text="${course.credits}"></td>
+                            <td th:text="${course.department}"></td>
+                            <td th:text="${course.availableSeats + ' / ' + course.maxSeats}"></td>
+                            <td th:text="${course.faculty != null ? course.faculty.name : 'Unassigned'}"></td>
+                            <td th:text="${'$' + #numbers.formatDecimal(course.feeAmount, 1, 2)}"></td>
+                            <td>
+                                <span th:if="${current == null}" class="badge badge-neutral">Not registered</span>
+                                <span th:if="${current != null}" th:classappend="${current.status.name().toLowerCase()}" class="badge badge-plain" th:text="${current.status}"></span>
+                            </td>
+                            <td>
+                                <div class="action-stack">
+                                    <a class="btn btn-gray btn-sm" th:href="@{'/student/courses/' + ${course.courseId}}">Details</a>
+                                    <form method="post" th:action="@{/student/enroll}" th:if="${current == null}">
+                                        <input type="hidden" name="courseId" th:value="${course.courseId}">
+                                        <button type="submit" class="btn btn-success btn-sm" th:disabled="${course.availableSeats == 0}">Register</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(courses)}">
+                            <td colspan="9" class="empty">No courses matched your search.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Users</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="layout">
+    <nav class="sidebar">
+        <div class="sidebar-brand"><h2>⚙️ Admin Portal</h2><p th:text="${admin.name}"></p></div>
+        <a th:href="@{/admin/dashboard}">📊 Dashboard</a>
+        <a th:href="@{/admin/courses}">📚 Manage Courses</a>
+        <a th:href="@{/admin/users}" class="active">👥 Users</a>
+        <a th:href="@{/admin/enrollments}">📝 Enrollments & Payments</a>
+        <a th:href="@{/signup}">➕ Add New User</a>
+        <a th:href="@{/admin/report}">📄 Download Report</a>
+        <div class="sidebar-logout"><a th:href="@{/logout}" class="btn btn-danger btn-full btn-sm">Logout</a></div>
+    </nav>
+    <div class="main-content">
+        <div class="topbar"><h1>User Management</h1></div>
+        <div class="page">
+            <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+            <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+            <div class="card">
+                <div class="action-stack horizontal" style="margin-bottom:16px;">
+                    <a th:href="@{/signup}" class="btn btn-success">Create New User</a>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Name</th><th>Username</th><th>Email</th><th>Role</th><th>Status</th><th>Last Login</th><th>Action</th></tr></thead>
+                        <tbody>
+                        <tr th:each="user : ${users}">
+                            <td th:text="${user.name}"></td>
+                            <td th:text="${user.username}"></td>
+                            <td th:text="${user.email}"></td>
+                            <td th:text="${user.role}"></td>
+                            <td><span th:classappend="${user.active ? 'approved' : 'rejected'}" class="badge badge-plain" th:text="${user.active ? 'ACTIVE' : 'INACTIVE'}"></span></td>
+                            <td th:text="${user.lastLogin != null ? #dates.format(user.lastLogin, 'yyyy-MM-dd HH:mm') : 'Never'}"></td>
+                            <td>
+                                <form method="post" th:action="@{/admin/users/toggle}" th:if="${user.userId != admin.userId}">
+                                    <input type="hidden" name="userId" th:value="${user.userId}">
+                                    <button type="submit" class="btn btn-sm" th:classappend="${user.active ? ' btn-danger' : ' btn-success'}" th:text="${user.active ? 'Deactivate' : 'Activate'}"></button>
+                                </form>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

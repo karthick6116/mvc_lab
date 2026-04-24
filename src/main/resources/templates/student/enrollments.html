@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>My Enrollments</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="layout">
+    <nav class="sidebar">
+        <div class="sidebar-brand"><h2>🎓 Student Portal</h2><p th:text="${student.name}"></p></div>
+        <a th:href="@{/student/courses}">📚 Browse Courses</a>
+        <a th:href="@{/student/enrollments}" class="active">📝 My Enrollments</a>
+        <a th:href="@{/student/grades}">🎯 My Grades</a>
+        <a th:href="@{/student/schedule}">📅 My Schedule</a>
+        <a th:href="@{/student/attendance}">🕒 Attendance</a>
+        <a th:href="@{/student/materials}">📁 Materials</a>
+        <a th:href="@{/student/payments}">💳 Payments</a>
+        <div class="sidebar-logout"><a th:href="@{/logout}" class="btn btn-danger btn-full btn-sm">Logout</a></div>
+    </nav>
+    <div class="main-content">
+        <div class="topbar">
+            <h1>My Enrollments</h1>
+            <span class="topbar-user" th:text="${student.studentId}"></span>
+        </div>
+        <div class="page">
+            <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+            <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+            <div class="card">
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Enrollment ID</th>
+                            <th>Course</th>
+                            <th>Status</th>
+                            <th>Applied On</th>
+                            <th>Payment</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="enrollment : ${enrollments}" th:with="payment=${paymentMap[enrollment.enrollmentId]}">
+                            <td th:text="${enrollment.enrollmentId}"></td>
+                            <td>
+                                <div class="strong" th:text="${enrollment.course.courseCode + ' - ' + enrollment.course.courseName}"></div>
+                                <div class="muted small" th:text="${'Semester ' + enrollment.semester + ' · ' + enrollment.academicYear}"></div>
+                                <div class="muted small" th:if="${enrollment.rejectionReason != null}" th:text="${'Reason: ' + enrollment.rejectionReason}"></div>
+                            </td>
+                            <td><span th:classappend="${enrollment.status.name().toLowerCase()}" class="badge badge-plain" th:text="${enrollment.status}"></span></td>
+                            <td th:text="${#dates.format(enrollment.enrollmentDate, 'yyyy-MM-dd HH:mm')}"></td>
+                            <td>
+                                <span th:if="${payment == null}" class="muted">Not generated</span>
+                                <span th:if="${payment != null}" th:classappend="${payment.status.name().toLowerCase()}" class="badge badge-plain" th:text="${payment.status}"></span>
+                            </td>
+                            <td>
+                                <form method="post" th:action="@{/student/enrollments/drop}" th:if="${enrollment.status.name() == 'PENDING' or enrollment.status.name() == 'ACTIVE' or enrollment.status.name() == 'APPROVED'}">
+                                    <input type="hidden" name="enrollmentId" th:value="${enrollment.enrollmentId}">
+                                    <button type="submit" class="btn btn-danger btn-sm">Drop</button>
+                                </form>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(enrollments)}"><td colspan="6" class="empty">No enrollments yet. Register from the course catalog.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
